@@ -1,0 +1,288 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Patient List - Hospital Management System</title>
+    <style>
+        /* Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body Styling */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-image: url("{% static 'images/hospital.jpg' %}"); /* Placeholder for your background image */
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: auto;
+            position: relative;
+        }
+
+        /* Gradient overlay */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom right, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.3));
+            z-index: 1;
+        }
+
+        /* Container */
+        .container {
+            position: relative;
+            z-index: 2;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 1100px;
+            overflow-x: auto;
+        }
+
+        /* Title */
+        h1 {
+            font-size: 1.5em;
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        /* Table Styling */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        table thead {
+            background-color: #2980b9;
+            color: white;
+        }
+
+        table th, table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table th {
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+
+        table tbody tr:hover {
+            background-color: #f2f2f2;
+        }
+
+        /* Button for Navigation */
+        .btn {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            text-transform: uppercase;
+            text-decoration: none;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            margin: 10px 0;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+
+        /* Search Field */
+        .search-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .search-container input[type="text"] {
+            width: 100%;
+            max-width: 400px;
+            padding: 12px;
+            border: 2px solid #2980b9;
+            border-radius: 30px;
+            font-size: 1em;
+            transition: all 0.4s ease;
+        }
+
+        .search-container input[type="text"]:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        /* Top Navigation Buttons */
+        .top-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+
+            table th, table td {
+                padding: 12px;
+            }
+
+            .btn {
+                padding: 8px 15px;
+                font-size: 1em;
+            }
+
+            .search-container input[type="text"] {
+                padding: 10px;
+                font-size: 0.9em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .btn {
+                padding: 7px 12px;
+            }
+
+            .search-container input[type="text"] {
+                padding: 8px;
+                font-size: 0.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Title -->
+        <h1>Patient List</h1>
+           <!-- Top Navigation Buttons -->
+           <div class="top-buttons">
+            <a href="/patients/register" class="btn">Register Patient</a>
+            <a href="/patients/search" class="btn">Search Patients</a>
+            <a href="#" class="btn">edit Details</a>
+        </div>
+        <!-- Search Field -->
+        <div class="search-container">
+            <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Search patients by name or ID...">
+        </div>
+
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Patient ID</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Illness</th>
+                    <th>Status</th>
+                    <th>Date Admitted</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for patient in patients %}
+                <tr>
+                    <td>{{ patient.random_id }}</td>
+                    <td>{{ patient.name }}</td>
+                    <td>{{ patient.age }}</td>
+                    <td>{{ patient.illness }}</td>
+                    <td>{{ patient.status }}</td>
+                    <td>{{ patient.date_admitted }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+     
+    </div>
+
+    <!-- JavaScript for Search and Sort Functionality -->
+    <script>
+        // Filter table based on input
+        function filterTable() {
+            let input = document.getElementById("searchInput");
+            let filter = input.value.toUpperCase();
+            let table = document.getElementById("patientTable");
+            let tr = table.getElementsByTagName("tr");
+
+            for (let i = 1; i < tr.length; i++) {
+                let tdArray = tr[i].getElementsByTagName("td");
+                let match = false;
+
+                for (let j = 0; j < tdArray.length; j++) {
+                    let td = tdArray[j];
+                    if (td && td.innerText.toUpperCase().indexOf(filter) > -1) {
+                        match = true;
+                        break;
+                    }
+                }
+
+                tr[i].style.display = match ? "" : "none";
+            }
+        }
+
+        // Sort table based on column
+        function sortTable(n) {
+            let table = document.getElementById("patientTable");
+            let rows = table.rows;
+            let switching = true;
+            let direction = "asc";
+            let shouldSwitch, i, x, y, switchCount = 0;
+
+            while (switching) {
+                switching = false;
+
+                for (i = 1; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("td")[n];
+                    y = rows[i + 1].getElementsByTagName("td")[n];
+
+                    if (direction === "asc" && x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    } else if (direction === "desc" && x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchCount++;
+                } else {
+                    if (switchCount === 0 && direction === "asc") {
+                        direction = "desc";
+                        switching = true;
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
